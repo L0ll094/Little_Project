@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- This line loads Tailwind CSS from the internet -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <title>Simple Site</title>
+  </head>
+
+  <body class="bg-zinc-950 text-zinc-100">
+    <div class="mx-auto max-w-4xl px-6 py-12">
+      <h1 class="text-3xl font-semibold mb-8">My Website</h1>
+
+      <section class="mb-6 rounded-xl bg-zinc-900 p-6">
+        <h2 id="titleA" class="text-xl font-medium">Section A</h2>
+      </section>
+
+      <section class="mb-6 rounded-xl bg-zinc-900 p-6">
+        <h2 id="titleB" class="text-xl font-medium">Section B</h2>
+      </section>
+
+      <section class="mb-6 rounded-xl bg-zinc-900 p-6">
+        <h2 id="titleC" class="text-xl font-medium">Section C</h2>
+      </section>
+    </div>
+
+    <script>
+      const ENDPOINT = "https://script.google.com/macros/s/AKfycbyTVchI_RFKonebXn-GCOmQizOv3jAwWvvF-oNHxoTyJK4c_5EgoA2oDjwcyjhzPvjK/exec";
+
+      async function refreshTitles() {
+        const response = await fetch(ENDPOINT, { cache: "no-store" });
+        const data = await response.json();
+
+        document.getElementById("titleA").textContent = data.a;
+        document.getElementById("titleB").textContent = data.b;
+        document.getElementById("titleC").textContent = data.c;
+      }
+
+      refreshTitles();
+      setInterval(refreshTitles, 5000);
+    </script>
+  </body>
+</html>
