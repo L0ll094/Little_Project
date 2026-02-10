@@ -3,44 +3,104 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <!-- This line loads Tailwind CSS from the internet -->
     <script src="https://cdn.tailwindcss.com"></script>
-
     <title>Simple Site</title>
   </head>
 
   <body class="bg-zinc-950 text-zinc-100">
-    <div class="mx-auto max-w-4xl px-6 py-12">
-      <h1 class="text-3xl font-semibold mb-8">My Website</h1>
+    <!-- Fixed top navigation menu -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800">
+      <div class="mx-auto max-w-4xl px-6 py-4">
+        <ul class="flex space-x-1">
+          <li>
+            <a href="#section-a" class="group flex items-center px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all font-medium">
+              <span id="menu-a">Section A</span>
+            </a>
+          </li>
+          <li>
+            <a href="#section-b" class="group flex items-center px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all font-medium">
+              <span id="menu-b">Section B</span>
+            </a>
+          </li>
+          <li>
+            <a href="#section-c" class="group flex items-center px-4 py-2 rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all font-medium">
+              <span id="menu-c">Section C</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
 
-      <section class="mb-6 rounded-xl bg-zinc-900 p-6">
-        <h2 id="titleA" class="text-xl font-medium">Section A</h2>
+    <!-- Main content with top padding for fixed nav -->
+    <div class="mx-auto max-w-4xl px-6 pt-24 pb-12">
+      <section id="section-a" class="mb-12 rounded-xl bg-zinc-900 p-8 scroll-mt-24">
+        <h1 class="text-3xl font-semibold mb-6" id="titleA">Section A</h1>
+        <div id="contentA" class="text-zinc-300 prose prose-invert max-w-none">Content for section A goes here. Scroll to it from the menu above.</div>
       </section>
 
-      <section class="mb-6 rounded-xl bg-zinc-900 p-6">
-        <h2 id="titleB" class="text-xl font-medium">Section B</h2>
+      <section id="section-b" class="mb-12 rounded-xl bg-zinc-900 p-8 scroll-mt-24">
+        <h2 class="text-3xl font-semibold mb-6" id="titleB">Section B</h2>
+        <div id="contentB" class="text-zinc-300 prose prose-invert max-w-none">Content for section B goes here. Scroll to it from the menu above.</div>
       </section>
 
-      <section class="mb-6 rounded-xl bg-zinc-900 p-6">
-        <h2 id="titleC" class="text-xl font-medium">Section C</h2>
+      <section id="section-c" class="mb-12 rounded-xl bg-zinc-900 p-8 scroll-mt-24">
+        <h2 class="text-3xl font-semibold mb-6" id="titleC">Section C</h2>
+        <div id="contentC" class="text-zinc-300 prose prose-invert max-w-none">Content for section C goes here. Scroll to it from the menu above.</div>
       </section>
     </div>
 
     <script>
-      const ENDPOINT = "https://script.google.com/macros/s/AKfycbyTVchI_RFKonebXn-GCOmQizOv3jAwWvvF-oNHxoTyJK4c_5EgoA2oDjwcyjhzPvjK/exec";
+      const ENDPOINT = "https://script.google.com/macros/s/AKfycbzHxVz4ZEQnJi5eDP-lGPT0IPAzuZZogvZKIIOrKZ1jMrbgaxBrSgaSOFmkkNKfUCgG/exec";
 
-      async function refreshTitles() {
-        const response = await fetch(ENDPOINT, { cache: "no-store" });
-        const data = await response.json();
+      function loadTitlesJSONP() {
+        return new Promise((resolve, reject) => {
+          const cbName = "cb_" + Date.now() + "_" + Math.random().toString(16).slice(2);
 
-        document.getElementById("titleA").textContent = data.a;
-        document.getElementById("titleB").textContent = data.b;
-        document.getElementById("titleC").textContent = data.c;
+          window[cbName] = (data) => {
+            try {
+              // Update menu items
+              document.getElementById("menu-a").textContent = data.a ?? "Section A";
+              document.getElementById("menu-b").textContent = data.b ?? "Section B";
+              document.getElementById("menu-c").textContent = data.c ?? "Section C";
+              
+              // Update section titles
+              document.getElementById("titleA").textContent = data.a ?? "Section A";
+              document.getElementById("titleB").textContent = data.b ?? "Section B";
+              document.getElementById("titleC").textContent = data.c ?? "Section C";
+              
+                // Section CONTENT (B1, B2, B3) - NEW!
+              document.getElementById("contentA").innerHTML = data.d ?? "Default content A";
+              document.getElementById("contentB").innerHTML = data.e ?? "Default content B";
+              document.getElementById("contentC").innerHTML = data.f ?? "Default content C";
+    
+              // Update page title (browser tab)
+              document.title = data.a ?? "Simple Site";
+              
+              resolve(data);
+            } finally {
+              delete window[cbName];
+              script.remove();
+            }
+          };
+
+          const script = document.createElement("script");
+          script.src = `${ENDPOINT}?callback=${cbName}&_=${Date.now()}`;
+          script.onerror = () => {
+            delete window[cbName];
+            script.remove();
+            reject(new Error("JSONP load failed"));
+          };
+
+          document.body.appendChild(script);
+        });
       }
 
-      refreshTitles();
-      setInterval(refreshTitles, 5000);
+      async function refresh() {
+        try { await loadTitlesJSONP(); } catch (e) { console.warn(e); }
+      }
+
+      refresh();
+      setInterval(refresh, 5000);
     </script>
   </body>
 </html>
